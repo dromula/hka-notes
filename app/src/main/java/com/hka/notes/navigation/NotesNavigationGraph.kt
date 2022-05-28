@@ -1,4 +1,4 @@
-package com.hka.notes.ui.theme
+package com.hka.notes.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -6,7 +6,10 @@ import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.hka.notes.*
+import com.hka.notes.state.NoteViewModel
+import com.hka.notes.ui.NoteAddView
+import com.hka.notes.ui.NoteDetailScreen
+import com.hka.notes.ui.NoteListView
 
 @Composable
 fun NotesNavigationGraph(
@@ -25,20 +28,25 @@ fun NotesNavigationGraph(
         }
 
         composable(Route.NoteItemRoute.routeTemplate, Route.NoteItemRoute.arguments) { backStackEntry ->
-            var id = backStackEntry.arguments?.getLong("id")
-            var note = noteViewModel.getById(id!!)
-
-            NoteDetailScreen(
-                noteId = note,
-                noteViewModel =  noteViewModel,
-                navigateBack = { navController.popBackStack(route = Route.NoteListRoute.routeTemplate, inclusive = false) },
-                navigateEdit = { navController.navigate(Route.NoteEditRoute.createRoute(id))}
-            )
+            val id = backStackEntry.arguments?.getLong("id")
+            if( id != null) {
+                NoteDetailScreen(
+                    noteId = id,
+                    noteViewModel = noteViewModel,
+                    navigateBack = {
+                        navController.popBackStack(
+                            route = Route.NoteListRoute.routeTemplate,
+                            inclusive = false
+                        )
+                    },
+                    navigateEdit = { navController.navigate(Route.NoteEditRoute.createRoute(id)) }
+                )
+            }
         }
 
         composable(Route.NoteEditRoute.routeTemplate, Route.NoteEditRoute.arguments) { backStackEntry ->
-            var id = backStackEntry.arguments?.getLong("id")
-            var note = noteViewModel.getById(id!!)
+            val id = backStackEntry.arguments?.getLong("id")
+            val note = noteViewModel.getById(id!!)
             NoteAddView(noteViewModel = noteViewModel, note = note) {
                 navController.popBackStack()
             }

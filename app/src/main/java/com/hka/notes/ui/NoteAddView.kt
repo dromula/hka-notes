@@ -1,4 +1,4 @@
-package com.hka.notes
+package com.hka.notes.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -6,16 +6,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hka.notes.data.db.Note
-import java.util.*
+import com.hka.notes.state.NoteViewModel
 
 @Composable
 fun NoteAddView(noteViewModel: NoteViewModel, note: Note?, navigateBack: () -> Unit) {
@@ -69,18 +67,18 @@ fun NoteAddView(noteViewModel: NoteViewModel, note: Note?, navigateBack: () -> U
             )
         },
     ) {
-        NoteFormula(noteViewModel, header, message, onHeaderChange = { header = it }, onMessageChange = { message = it })
+        NoteFormula(header, message, onHeaderChange = { header = it }, onMessageChange = { message = it })
     }
 }
 
 @Composable
-fun NoteFormula(noteViewModel: NoteViewModel, header: String, message: String, onHeaderChange: (String) -> Unit, onMessageChange: (String) -> Unit) {
+fun NoteFormula(header: String, message: String, onHeaderChange: (String) -> Unit, onMessageChange: (String) -> Unit) {
     Column(
         Modifier.fillMaxWidth().padding(vertical = 16.dp)
     ) {
 
         val textModifier = Modifier.padding(horizontal = 16.dp)
-        val textStyle = TextStyle(fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        val textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
 
         Text (
             text = "Überschrift",

@@ -1,4 +1,4 @@
-package com.hka.notes
+package com.hka.notes.state
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,17 +16,12 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
     private var _notesState: MutableLiveData<NoteUIState> =
         MutableLiveData(DEFAULT_UI_STATE)
     val noteState: LiveData<NoteUIState> = _notesState
+
     val notes: LiveData<List<Note>> = noteRepository.allNotes
 
     fun addNoteByStrings(header: String, message: String) {
         viewModelScope.launch {
             noteRepository.addNote(Note(0, header, message, Date()))
-        }
-    }
-
-    fun addNote(note: Note) {
-        viewModelScope.launch {
-            noteRepository.addNote(note)
         }
     }
 
@@ -42,18 +37,8 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
         }
     }
 
-    fun getById(id: Long): Note {
-        val note = notes.value?.first { note -> note.id == id  }
-        return note!!
-    }
-
-    fun getByName(name: String): Note {
-        var note = noteState.value?.notes?.first { note -> note.header == name }
-        return note ?: Note(0, "", "", Date())
-    }
-
-    private fun setLoading() {
-        _notesState.value = _notesState.value?.copy(isLoading = true)
+    fun getById(id: Long): Note? {
+        return notes.value?.first { note -> note.id == id  }
     }
 
     fun addSelectedNote(note: Note) {
@@ -92,11 +77,7 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
     }
 
     companion object {
-        const val LOG_TAG = "NoteViewModel"
-
         private val DEFAULT_UI_STATE = NoteUIState(
-            notes = listOf(),
-            isLoading = false,
             selectedNotes = emptyList()
         )
     }

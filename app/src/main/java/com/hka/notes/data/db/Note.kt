@@ -10,6 +10,6 @@ data class Note(
     val id: Long,
     val header: String,
     val message: String,
-    val createdAt: Date?
+    val createdAt: Date
 ) {
 }

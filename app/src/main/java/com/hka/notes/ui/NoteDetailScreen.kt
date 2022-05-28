@@ -1,4 +1,4 @@
-package com.hka.notes
+package com.hka.notes.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,18 +20,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hka.notes.data.db.Note
+import com.hka.notes.state.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun NoteDetailScreen(
-    noteId: Note,
+    noteId: Long,
     noteViewModel: NoteViewModel,
     navigateBack: () -> Unit,
     navigateEdit: () -> Unit
 ) {
     val notes by noteViewModel.notes.observeAsState()
-    val note = notes?.find{ it.id == noteId.id } ?: Note(0, "", "", Date())
+    val note = notes?.find{ it.id == noteId } ?: Note(0, "", "", Date())
     Scaffold(
         topBar = {
             TopAppBar(
@@ -63,13 +64,13 @@ fun NoteDetailScreen(
             modifier = Modifier.fillMaxSize().padding(vertical = 15.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val formatter = SimpleDateFormat("EEE, d MMM yyyy HH:mm")
+            val formatter = SimpleDateFormat("EEE, d MMM yyyy HH:mm", Locale.GERMAN)
             Text(
                 text = formatter.format(note.createdAt),
                 style = TextStyle(fontSize = 14.sp, color = Color.DarkGray),
             )
 
-            Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
+            Divider(color = MaterialTheme.colors.secondary, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
 
             val scroll = rememberScrollState(0)
             Text(text = note.message, modifier = Modifier.padding(horizontal = 15.dp).verticalScroll(scroll))

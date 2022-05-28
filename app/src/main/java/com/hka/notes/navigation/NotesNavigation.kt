@@ -1,4 +1,4 @@
-package com.hka.notes
+package com.hka.notes.navigation
 
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
