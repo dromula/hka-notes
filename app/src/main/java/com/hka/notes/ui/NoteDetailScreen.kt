@@ -2,6 +2,7 @@ package com.hka.notes.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -73,7 +74,7 @@ fun NoteDetailScreen(
             Divider(color = MaterialTheme.colors.secondary, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
 
             val scroll = rememberScrollState(0)
-            Text(text = note.message, modifier = Modifier.padding(horizontal = 15.dp).verticalScroll(scroll))
+            Text(text = note.message, modifier = Modifier.padding(horizontal = 15.dp).verticalScroll(scroll).fillMaxWidth())
         }
     }
 }
