@@ -1,7 +1,7 @@
 package com.hka.notes.data.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
@@ -9,7 +9,7 @@ interface NoteDao {
     suspend fun insert(note: Note)
 
     @Query("SELECT * FROM note")
-    fun getAll(): LiveData<List<Note>>
+    fun getAll(): Flow<List<Note>>
 
     @Delete
     suspend fun delete(note: Note)

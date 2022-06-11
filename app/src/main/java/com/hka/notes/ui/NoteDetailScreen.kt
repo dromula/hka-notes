@@ -12,15 +12,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hka.notes.data.db.Note
 import com.hka.notes.state.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,8 +29,7 @@ fun NoteDetailScreen(
     navigateBack: () -> Unit,
     navigateEdit: () -> Unit
 ) {
-    val notes by noteViewModel.notes.observeAsState()
-    val note = notes?.find{ it.id == noteId } ?: Note(0, "", "", Date())
+    val note = noteViewModel.getById(noteId)
     Scaffold(
         topBar = {
             TopAppBar(

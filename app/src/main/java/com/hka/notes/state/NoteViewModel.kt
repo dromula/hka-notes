@@ -1,23 +1,35 @@
 package com.hka.notes.state
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.hka.notes.data.NoteRepository
 import com.hka.notes.data.db.Note
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class NoteViewModel @Inject constructor(private val noteRepository: NoteRepository) : ViewModel() {
-    private var _notesState: MutableLiveData<NoteUIState> =
-        MutableLiveData(DEFAULT_UI_STATE)
-    val noteState: LiveData<NoteUIState> = _notesState
+    private val _notesFlow = MutableStateFlow(DEFAULT_UI_STATE)
+    val notesFlow = _notesFlow.asStateFlow()
 
-    val notes: LiveData<List<Note>> = noteRepository.allNotes
+    init {
+        loadNotes()
+    }
+
+    fun loadNotes() {
+        _notesFlow.update { prev -> prev.copy(isLoading = true) }
+        viewModelScope.launch {
+            noteRepository.allNotes.collect {
+                _notesFlow.update {
+                        prev -> prev.copy(notes = it, isLoading = false)
+                }
+            }
+        }
+    }
 
     fun addNoteByStrings(header: String, message: String) {
         viewModelScope.launch {
@@ -37,48 +49,46 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
         }
     }
 
-    fun getById(id: Long): Note? {
-        return notes.value?.first { note -> note.id == id  }
+    fun getById(id: Long): Note {
+        return notesFlow.value.notes.first { note -> note.id == id  }
     }
 
     fun addSelectedNote(note: Note) {
-        val currentUIState = _notesState.value
-        if (currentUIState != null) {
-            val currentNotes = currentUIState.selectedNotes
-            _notesState.value = currentUIState.copy(
-                selectedNotes = currentNotes.plus(note),
-            )
-        }
+        val currentUIState = _notesFlow.value
+        val currentNotes = currentUIState.selectedNotes
+        _notesFlow.value = currentUIState.copy(
+            selectedNotes = currentNotes.plus(note),
+        )
     }
 
     fun removeSelectedNote(note: Note) {
-        val currentUIState = _notesState.value
-        if (currentUIState != null) {
-            val currentNotes = currentUIState.selectedNotes
-            _notesState.value = currentUIState.copy(
-                selectedNotes = currentNotes.minus(note),
-            )
-        }
+        val currentUIState = _notesFlow.value
+        val currentNotes = currentUIState.selectedNotes
+        _notesFlow.value = currentUIState.copy(
+            selectedNotes = currentNotes.minus(note),
+        )
     }
 
     fun deleteSelectedNotes() {
-        noteState.value?.selectedNotes?.map {
+        notesFlow.value.selectedNotes.map {
             deleteNote(it)
             removeSelectedNote(it)
         }
     }
 
     fun notesInSelectedNotes(): Boolean {
-        return noteState.value?.selectedNotes?.isNotEmpty() ?: false
+        return notesFlow.value.selectedNotes.isNotEmpty()
     }
 
     fun noteInSelectedNotes(note: Note): Boolean {
-        return noteState.value?.selectedNotes?.contains(note) ?: false
+        return notesFlow.value.selectedNotes.contains(note)
     }
 
     companion object {
         private val DEFAULT_UI_STATE = NoteUIState(
-            selectedNotes = emptyList()
+            selectedNotes = emptyList(),
+            notes = emptyList(),
+            isLoading = false
         )
     }
 }

@@ -10,8 +10,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -22,15 +22,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.hka.notes.navigation.Route
 import com.hka.notes.data.db.Note
-import com.hka.notes.state.NoteUIState
 import com.hka.notes.state.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun NoteListView(noteViewModel: NoteViewModel, navController: NavHostController) {
-    val noteUIState by noteViewModel.noteState.observeAsState()
-    val selectedNotes = noteUIState?.selectedNotes ?: emptyList()
+    val noteUIState by noteViewModel.notesFlow.collectAsState()
+    val selectedNotes = noteUIState.selectedNotes
+    val notes = noteUIState.notes
 
     Scaffold(
         topBar = {
@@ -59,17 +59,16 @@ fun NoteListView(noteViewModel: NoteViewModel, navController: NavHostController)
         floatingActionButtonPosition = FabPosition.End
     ) {
         // Screen content
-        NoteList(noteViewModel, navController)
+        NoteList(noteViewModel, navController, notes)
     }
 }
 
 @Composable
 fun NoteList(
     noteViewModel: NoteViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    notes: List<Note>
 ) {
-    val notes by noteViewModel.notes.observeAsState(emptyList())
-
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 2.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp),
